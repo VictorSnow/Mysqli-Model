@@ -25,6 +25,8 @@ class Models
     protected $_limit = '';
     protected $_fields = '*';
     protected $_joins = [];
+    protected $_group = '';
+    protected $_having = '';
 
     protected $_data = [];
 
@@ -103,6 +105,8 @@ class Models
         $this->_data = [];
         $this->_affect_rows = -1;
         $this->_last_error = '';
+        $this->_group = '';
+        $this->_having = '';
     }
 
     public function from($table)
@@ -118,6 +122,18 @@ class Models
         }
 
         $this->_fields = $fields;
+        return $this;
+    }
+
+    public function group($group)
+    {
+        $this->_group = $group;
+        return $this;
+    }
+
+    public function having($having)
+    {
+        $this->_having = $having;
         return $this;
     }
 
@@ -335,7 +351,7 @@ class Models
         }
         return $ret;
     }
-    
+
     /**
      * @param $conditions
      * @param $data
@@ -386,6 +402,14 @@ class Models
 
                 if ($this->_conditions) {
                     $sql .= ' where ('. join(' ) and ( ', $this->_conditions) .') '." \n ";
+                }
+
+                if ($this->_group) {
+                    $sql .= '  group by '. $this->_group." \n";
+
+                    if ($this->_having) {
+                        $sql .= ' having '. $this->_having ." \n";
+                    }
                 }
 
                 if ($this->_order) {
